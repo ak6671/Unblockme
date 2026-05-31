@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Truck, ShieldCheck, Mail, Lock, Phone, User, MapPin, ClipboardList, Info, Globe, HelpCircle, ArrowLeft, Check } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
 export default function AdminSignupFleet() {
   const navigate = useNavigate();

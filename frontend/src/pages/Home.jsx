@@ -83,38 +83,113 @@ export default function Home() {
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex-1 relative w-full max-w-lg lg:max-w-none flex justify-center"
+          className="flex-1 relative w-full max-w-lg lg:max-w-none flex justify-center items-center"
         >
-          {/* Mockup of sticker floating */}
-          <div className="relative w-full max-w-md aspect-video bg-gray-900 rounded-[2rem] shadow-2xl p-6 transform rotate-2 hover:rotate-0 transition-transform duration-500 flex flex-col justify-between overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#FF6B00] rounded-full blur-[100px] opacity-20"></div>
-            
-            <div className="flex justify-between items-start z-10">
-              <div className="text-white">
-                <span className="text-2xl font-black italic">Unblock<span className="text-[#FF6B00]">Me</span></span>
-                <p className="text-[#FF6B00] text-xs font-bold tracking-widest mt-1">YOUR VEHICLE CODE</p>
-                <div className="bg-white/10 px-3 py-1 rounded border border-white/20 mt-1 inline-block">
-                  <span className="text-2xl font-mono font-black tracking-widest">UB<span className="text-[#FF6B00]">1234</span></span>
+          {/* Ambient glow */}
+          <div className="absolute w-96 h-96 bg-[#FF6B00] rounded-full blur-[150px] opacity-15 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
+
+          <div className="relative w-full max-w-md flex items-center gap-3">
+            {/* Before - Sticky note on windshield */}
+            <motion.div
+              initial={{ x: 30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 p-3 overflow-hidden"
+            >
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="w-2 h-2 rounded-full bg-red-400"></span>
+                <span className="text-[10px] font-bold text-red-500 tracking-wide uppercase">Old Way</span>
+              </div>
+
+              {/* Windshield with sticky note */}
+              <div className="relative mx-auto w-full aspect-[4/3] bg-gradient-to-b from-blue-200 via-blue-100 to-blue-50 rounded-[40%_40%_10%_10%/30%_30%_10%_10%] border-4 border-gray-700 shadow-inner overflow-hidden">
+                {/* Glass reflection */}
+                <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white/40 to-transparent skew-x-[-10deg] -translate-x-4"></div>
+                <div className="absolute top-0 right-0 w-1/5 h-full bg-gradient-to-l from-white/30 to-transparent"></div>
+
+                {/* Sticky note */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] bg-yellow-100 rotate-[-3deg] rounded-lg p-2.5 shadow-lg border border-yellow-300">
+                  <p className="text-[10px] font-bold text-gray-700 mb-0.5">Sorry blocking!</p>
+                  <p className="text-[13px] font-black text-gray-900">📞 98765 43210</p>
+                  <div className="w-2 h-2 bg-red-500 rounded-full absolute -top-1 right-2"></div>
                 </div>
               </div>
-              <div className="bg-white p-2 rounded-xl">
-                <QrCode className="w-16 h-16 text-gray-900" />
-              </div>
-            </div>
 
-            <div className="z-10 mt-8 flex justify-between items-end border-t border-white/10 pt-4">
-              <div className="flex items-center gap-2 text-white/80">
-                <CarFront className="w-6 h-6" />
-                <span className="text-sm font-medium">Scan to Contact Owner</span>
+              <div className="mt-3 space-y-1.5">
+                <div className="flex items-start gap-2">
+                  <span className="text-red-400 text-xs mt-0.5">✕</span>
+                  <p className="text-[11px] text-gray-500 font-medium">Phone number exposed to everyone</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-red-400 text-xs mt-0.5">✕</span>
+                  <p className="text-[11px] text-gray-500 font-medium">Paper gets ruined by rain & wind</p>
+                </div>
               </div>
-              <div className="flex gap-2">
-                <div className="bg-[#FF6B00] w-8 h-8 rounded flex items-center justify-center"><SmartphoneNfc className="w-4 h-4 text-white"/></div>
-                <div className="bg-[#FF6B00] w-8 h-8 rounded flex items-center justify-center"><ScanLine className="w-4 h-4 text-white"/></div>
+            </motion.div>
+
+            {/* VS */}
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.3, delay: 0.7, type: "spring" }}
+              className="flex-shrink-0 z-10"
+            >
+              <div className="w-9 h-9 bg-gray-900 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white text-[11px] font-black">VS</span>
               </div>
-            </div>
+            </motion.div>
+
+            {/* After - UnblockMe sticker on windshield */}
+            <motion.div
+              initial={{ x: -30, opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex-1 bg-gradient-to-b from-[#FF6B00]/5 to-transparent rounded-2xl shadow-lg border border-[#FF6B00]/20 p-3 overflow-hidden ring-2 ring-[#FF6B00]/30"
+            >
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                <span className="text-[10px] font-bold text-green-600 tracking-wide uppercase">UnblockMe Way</span>
+              </div>
+
+              {/* Windshield with UnblockMe sticker */}
+              <div className="relative mx-auto w-full aspect-[4/3] bg-gradient-to-b from-blue-200 via-blue-100 to-blue-50 rounded-[40%_40%_10%_10%/30%_30%_10%_10%] border-4 border-gray-700 shadow-inner overflow-hidden">
+                {/* Glass reflection */}
+                <div className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-white/40 to-transparent skew-x-[-10deg] -translate-x-4"></div>
+                <div className="absolute top-0 right-0 w-1/5 h-full bg-gradient-to-l from-white/30 to-transparent"></div>
+
+                {/* UnblockMe sticker */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] bg-white rounded-lg p-2.5 shadow-lg border border-[#FF6B00]/30">
+                  <div className="flex items-center justify-between mb-1.5">
+                    <span className="text-[11px] font-black italic text-gray-900">Unblock<span className="text-[#FF6B00]">Me</span></span>
+                    <div className="bg-gray-900 p-1 rounded">
+                      <QrCode className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-100 rounded px-2 py-0.5 inline-block">
+                    <span className="text-[11px] font-mono font-black tracking-widest text-gray-900">UB<span className="text-[#FF6B00]">1234</span></span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <SmartphoneNfc className="w-3 h-3 text-[#FF6B00]" />
+                    <ScanLine className="w-3 h-3 text-[#FF6B00]" />
+                    <span className="text-[8px] text-gray-400 font-medium">Scan or Tap</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-3 space-y-1.5">
+                <div className="flex items-start gap-2">
+                  <span className="text-green-500 text-xs mt-0.5">✓</span>
+                  <p className="text-[11px] text-gray-600 font-medium">Phone number stays hidden</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-green-500 text-xs mt-0.5">✓</span>
+                  <p className="text-[11px] text-gray-600 font-medium">Weather-proof permanent sticker</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </motion.div>
       </section>
@@ -145,6 +220,94 @@ export default function Home() {
               icon={<BellRing className="w-10 h-10 text-[#FF6B00]" />}
               title="Call IVR"
               description="Call our dedicated line and enter the vehicle code to be securely routed to the owner."
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* How the Sticker Works - Animated Flow */}
+      <section id="how-sticker-works" className="w-full py-20 bg-white border-t border-gray-100">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-gray-900 mb-4">How the Sticker Works</h2>
+            <p className="text-gray-500 text-lg font-medium max-w-2xl mx-auto">A simple sticker on your windshield replaces paper notes forever.</p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+            {/* Step 1 - Park & Display */}
+            <AnimatedStep
+              step="1"
+              delay={0}
+              icon={
+                <svg viewBox="0 0 80 50" className="w-16 h-auto">
+                  <path d="M10 30 Q15 15 40 14 Q65 15 70 30 L75 30 L75 36 L5 36 L5 30 Z" fill="#334155" />
+                  <path d="M14 31 Q25 22 40 21 Q55 22 66 31 L64 38 L16 38 Z" fill="#bfdbfe" opacity="0.8" />
+                  <rect x="4" y="36" width="72" height="10" rx="3" fill="#1e293b" />
+                  <rect x="65" y="33" width="8" height="3" rx="1" fill="#fef08a" />
+                  <rect x="7" y="33" width="8" height="3" rx="1" fill="#fef08a" />
+                </svg>
+              }
+              title="Park & Display"
+              description="Place the UnblockMe sticker on your windshield. It stays there permanently — weather-proof and always ready."
+            />
+
+            {/* Animated connecting arrow */}
+            <AnimatedConnector delay={0.4} />
+
+            {/* Step 2 - Someone Scans */}
+            <AnimatedStep
+              step="2"
+              delay={0.4}
+              icon={
+                <motion.div
+                  animate={{ scale: [1, 1.15, 1] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                >
+                  <svg viewBox="0 0 56 56" className="w-16 h-auto">
+                    <rect x="8" y="4" width="40" height="48" rx="6" fill="#1e293b" />
+                    <rect x="12" y="8" width="32" height="36" rx="2" fill="white" />
+                    <rect x="20" y="21" width="16" height="16" rx="1" stroke="#FF6B00" strokeWidth="2" fill="none" />
+                    <line x1="20" y1="21" x2="36" y2="37" stroke="#FF6B00" strokeWidth="1" opacity="0.6" />
+                    <line x1="36" y1="21" x2="20" y2="37" stroke="#FF6B00" strokeWidth="1" opacity="0.6" />
+                    <motion.rect
+                      x="20" y="21" width="16" height="1" fill="#FF6B00"
+                      animate={{ y: [21, 36, 21] }}
+                      transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                    />
+                  </svg>
+                </motion.div>
+              }
+              title="Someone Scans"
+              description="Anyone parks next to you? They scan the QR code, tap NFC, or call — no app needed, instant access."
+            />
+
+            {/* Animated connecting arrow */}
+            <AnimatedConnector delay={0.8} />
+
+            {/* Step 3 - You Get Alerted */}
+            <AnimatedStep
+              step="3"
+              delay={0.8}
+              icon={
+                <motion.div className="relative">
+                  <svg viewBox="0 0 56 56" className="w-16 h-auto">
+                    <rect x="8" y="4" width="40" height="48" rx="6" fill="#1e293b" />
+                    <rect x="12" y="8" width="32" height="36" rx="2" fill="white" />
+                    <circle cx="28" cy="22" r="4" fill="#FF6B00" />
+                    <rect x="14" y="32" width="28" height="10" rx="2" fill="#f1f5f9" stroke="#e2e8f0" />
+                    <text x="28" y="39" textAnchor="middle" fontSize="6" fontWeight="bold" fill="#334155">Blocking</text>
+                  </svg>
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                  >
+                    <span className="text-white text-[8px] font-black">!</span>
+                  </motion.div>
+                </motion.div>
+              }
+              title="You Get Alerted"
+              description="Instant SMS or call notifies you. Your phone number stays completely hidden — always private."
             />
           </div>
         </div>
@@ -235,5 +398,49 @@ function FeatureItem({ icon, title, description }) {
         <p className="text-gray-600 font-medium leading-relaxed">{description}</p>
       </div>
     </div>
+  );
+}
+
+function AnimatedStep({ step, delay, icon, title, description }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.5, delay }}
+      className="flex flex-col items-center text-center max-w-xs"
+    >
+      <div className="relative mb-5">
+        <div className="absolute inset-0 bg-[#FF6B00]/10 rounded-full blur-xl scale-125"></div>
+        <div className="relative bg-white border border-gray-100 p-5 rounded-2xl shadow-lg">
+          {icon}
+        </div>
+      </div>
+      <h3 className="text-xl font-black text-gray-900 mb-2">{title}</h3>
+      <p className="text-gray-500 font-medium leading-relaxed text-sm">{description}</p>
+    </motion.div>
+  );
+}
+
+function AnimatedConnector({ delay }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scaleX: 0 }}
+      whileInView={{ opacity: 1, scaleX: 1 }}
+      viewport={{ once: true, margin: "-60px" }}
+      transition={{ duration: 0.4, delay }}
+      className="hidden lg:block flex-shrink-0"
+    >
+      <div className="flex items-center w-16">
+        <div className="flex-1 h-0.5 bg-[#FF6B00]/30 relative">
+          <motion.div
+            className="absolute top-1/2 -translate-y-1/2 right-0 w-2 h-2 bg-[#FF6B00] rounded-full"
+            animate={{ x: [0, 64, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay }}
+          />
+        </div>
+        <ArrowRight className="w-4 h-4 text-[#FF6B00]" />
+      </div>
+    </motion.div>
   );
 }

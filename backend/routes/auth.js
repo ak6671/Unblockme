@@ -1,86 +1,95 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const admin = require('firebase-admin');
 const User = require('../models/User');
 const router = express.Router();
 
-const rateLimit = require('express-rate-limit');
+// Initialize Firebase Admin if not already initialized
+let firebaseInitialized = false;
+function initFirebase() {
+  if (firebaseInitialized) return;
+  
+  if (!admin.apps.length) {
+    const serviceAccount = {
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+    };
 
-// Mock OTP storage. In production use Redis.
-const otpStore = {};
-
-const otpLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 minutes
-  max: 5, // Limit each IP to 5 OTP requests per windowMs
-  message: { error: 'Too many OTP requests from this IP, please try again after 10 minutes.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-router.post('/send-otp', otpLimiter, async (req, res) => {
-  const { phone, mode, name } = req.body;
-  if (!phone) return res.status(400).json({ error: 'Phone is required' });
-
-  // Pre-validate for signup mode to prevent sending OTP if number exists
-  let user = await User.findOne({ phone });
-  if (mode === 'signup') {
-    if (user && user.name !== 'User' && name && user.name.toLowerCase() !== name.trim().toLowerCase()) {
-      return res.status(400).json({ error: 'Mobile number already exist' });
-    }
-  } else if (mode === 'login') {
-    if (!user) {
-      return res.status(404).json({ error: 'You’re new here! Taking you to sign up…', redirectToSignup: true });
+    if (serviceAccount.projectId && serviceAccount.privateKey && serviceAccount.clientEmail) {
+      admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+      });
+      firebaseInitialized = true;
     }
   }
+}
 
-  // Generate mock 4 digit OTP
-  const otp = Math.floor(1000 + Math.random() * 9000).toString();
-  otpStore[phone] = otp;
-  
-  // MOCK: Send OTP via SMS
-  console.log(`[Mock SMS] Sending OTP ${otp} to ${phone}`);
+// New route for Firebase Auth token verification (used by frontend Firebase SDK)
+router.post('/verify-firebase-token', async (req, res) => {
+  const { firebaseToken, phone, name } = req.body;
 
-  res.json({ message: 'OTP sent successfully', mock_otp: otp }); // returning OTP for easy testing
-});
-
-router.post('/verify-otp', async (req, res) => {
-  const { phone, otp, name } = req.body;
+  if (!firebaseToken) {
+    return res.status(400).json({ error: 'Firebase token is required' });
+  }
 
   try {
-    if (otpStore[phone] !== otp) {
-      return res.status(400).json({ error: 'Invalid OTP' });
+    initFirebase();
+
+    if (!firebaseInitialized) {
+      return res.status(500).json({ error: 'Firebase is not configured. Please contact support.' });
     }
 
-    delete otpStore[phone]; // Consume OTP
+    // Verify the Firebase ID token
+    const decodedToken = await admin.auth().verifyIdToken(firebaseToken);
+    const firebasePhone = decodedToken.phone_number;
 
-    let user = await User.findOne({ phone });
+    // Check if phone matches (if provided)
+    if (phone) {
+      const normalizedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+      if (firebasePhone !== normalizedPhone) {
+        return res.status(400).json({ error: 'Phone number mismatch' });
+      }
+    }
+
+    // Find or create user
+    const phoneNumber = phone || firebasePhone;
+    let user = await User.findOne({ phone: phoneNumber });
+
     if (!user) {
-      user = new User({ 
-        phone, 
+      user = new User({
+        phone: phoneNumber,
         name: name || 'User',
-        role: phone === '9999999999' ? 'admin' : 'user'
+        role: 'user'
       });
     } else if (name && user.name !== 'User' && user.name.toLowerCase() !== name.trim().toLowerCase()) {
       return res.status(400).json({ error: 'Mobile number already exist' });
     } else if (name && user.name === 'User') {
-      user.name = name; // Graceful overwrite for existing blanks
+      user.name = name;
     }
-    
-    // Auto-escalate mock number to admin
-    if (phone === '9999999999' && user.role !== 'admin') {
-      user.role = 'admin';
-    }
-    
+
     await user.save();
 
-    const token = jwt.sign({ id: user._id, phone: user.phone, role: user.role }, process.env.JWT_SECRET || 'fallback_secret', { expiresIn: '7d' });
+    // Generate app JWT
+    const token = jwt.sign(
+      { id: user._id, phone: user.phone, role: user.role },
+      process.env.JWT_SECRET || 'fallback_secret',
+      { expiresIn: '7d' }
+    );
+
     res.json({ token, user });
-  } catch (error) {
-    console.error('Verify OTP Error:', error);
+  } catch (err) {
+    console.error('Firebase Token Verify Error:', err);
+    if (err.code === 'auth/id-token-expired' || err.code === 'auth/id-token-revoked') {
+      return res.status(401).json({ error: 'Session expired. Please login again.' });
+    }
+    if (err.code === 'auth/argument-error') {
+      return res.status(400).json({ error: 'Invalid token format.' });
+    }
     res.status(500).json({ error: 'Internal server error during verification' });
   }
 });
 
-// Update Profile info
 router.put('/profile', require('../middleware/auth'), async (req, res) => {
   try {
     const { name, profilePhoto, drivingLicense } = req.body;
